@@ -1,0 +1,238 @@
+type User @model
+@key(fields: ["owner"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ])
+{
+  id: ID!
+  name: String
+  sex: SexType
+  age: Int
+  belong: String
+  job: String
+  type: UserType
+  image: Image
+  questionIds: [ID]
+  postIds: [ID]
+  notionIds: [ID]
+  reserveId: [ID]
+  closeReserveId: [ID]
+  post: [Post] @connection(keyName: "PostByUser",fields: ["id"])
+  reserve: [Reserve] @connection(keyName: "ReserveByUser",fields: ["id"])
+  notion: [Notion] @connection(keyName: "NotionByUser",fields: ["id"])
+  survey: [Survey] @connection(keyName: "SurveyByUser",fields: ["id"])
+  owner: ID!
+}
+enum UserType{
+  traveler
+  player
+}
+enum SexType {
+ man
+ woman
+ other
+}
+enum JobPattern{
+  student
+  employee
+  selfEmployed
+}
+
+type Post @model
+@key(fields: ["id"])
+@key(name: "PostByUser", fields: ["userId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  userId: ID!
+  image: Image
+  title: String
+  viewerId: [ID]
+  content: String
+  like: Int
+  owner: ID!
+}
+type Reserve @model
+@key(fields: ["id"])
+@key(name: "ReserveByUser", fields: ["userId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  userId: ID!
+  title: String
+  limit: Int
+  reserved: Int
+  start: AWSDateTime
+  end: AWSDateTime
+  from: AWSDateTime
+  to: AWSDateTime
+  content: String
+  owner: ID!
+}
+
+type Notion @model
+@key(fields: ["id"])
+@key(name: "NotionByUser", fields: ["userId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  userId: ID!
+  type: NotionType
+  title: String
+  notionReceiver: [NotionReceiver] @connection(keyName: "NotionReceiverByNotion",fields: ["id"])
+  content: String
+  owner: ID!
+}
+type NotionReceiver @model
+@key(fields: ["id"])
+@key(name: "NotionReceiverByNotion", fields: ["notionId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  notionId: ID!
+  to: User!
+  opened: Boolean
+  read: Boolean
+  clicked: Boolean
+  owner: ID!
+}
+enum NotionType {
+ invitation
+ appreciation
+ coupon
+}
+
+type Survey @model
+@key(fields: ["id"])
+@key(name: "SurveyByUser", fields: ["userId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  userId: ID!
+  title: String
+  image: Image
+  question: [Question] @connection(keyName: "QuestionBySurvey",fields: ["id"])
+  owner: ID!
+}
+
+type Question @model
+@key(fields: ["id"])
+@key(name: "QuestionBySurvey", fields: ["surveyId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  surveyId: ID!
+  title: String
+  choice: [String]
+  image: Image
+  answer: [Answer] @connection(keyName: "AnswerByQuestion",fields: ["id"])
+  owner: ID!
+}
+
+type Answer @model
+@key(fields: ["id"])
+@key(name: "AnswerByQuestion", fields: ["questionId"])
+@auth(rules: [
+  {allow: public, provider: iam, operations: [ read ]},
+  {allow: owner, ownerField: "owner", operations: [read, create, update, delete] },
+  {allow: groups, groups: ["Master"], operations: [read, create, update, delete]}
+  ]){
+  id: ID!
+  questionId: ID!
+  userId: ID
+  answer: String
+  owner: ID!
+}
+
+type Image {
+  fullName: String
+  name: String
+  type: String
+  size: Int
+  alt: String
+  usage: ImageUsage
+  url: String
+  identityId: String!
+}
+enum ImageUsage {
+ question
+ user
+ post
+}
+# Notion table
+#  type: NotionType
+#  title: String //通知タイトル
+#  notionReceiver: [NotionReceiver] //送られた側の各種フラグ
+#  content: String //通知本文（HTML）
+
+# NotionReceiver table
+#  to: User!
+#  opened: Boolean //既読かどうか
+#  read: Boolean //最後まで読んだかどうか
+#  clicked: Boolean //予約ページリンク押したかどうか
+
+# User table
+#  name: String //お名前
+#  sex: SexType //性別
+#  age: Int //年齢
+#  belong: String //所属
+#  job: String //仕事
+#  type: UserType //プレイヤーか観光客か
+#  image: Image //画像メタデータ
+#  questionIds: [ID] //解答済みアンケートのID
+#  postIds: [ID] //お気に入り登録した記事のID
+#  notionIds: [ID] //送られたメール（通知）のID
+#  reserveId: [ID] //確定した予約のID
+#  closeReserveId: [ID] //体験済み予約のID
+
+# Post table
+#  image: Image //画像メタデータ
+#  title: String //記事タイトル
+#  viewerId: [ID] //閲覧済み観光客ID
+#  content: String //記事本文（HTML）
+#  like: Int //お気に入りの数
+
+# Reserve table
+#  title: String //予約タイトル
+#  limit: Int //枠数
+#  reserved: Int //予約済み枠数
+#  start: AWSDateTime //旅行開始日時
+#  end: AWSDateTime //旅行終了日時
+#  from:AWSDateTime //掲載開始日時
+#  to:AWSDateTime //掲載終了日時
+#  content: String //予約詳細（HTML）
+
+# Survey table
+#  title: String //アンケートタイトル
+#  image: Image //画像メタデータ
+#  question: [Question]
+
+# Question table
+#  title: String //質問タイトル
+#  choice: [String] //選択肢
+#  image: Image //画像メタデータ
+#  answer: [Answer] //解答集
+
+# Answer table
+#  userId: ID //質問に答えたUserのID
+#  answer: String // 解答

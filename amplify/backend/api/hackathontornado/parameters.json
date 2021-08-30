@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "hackathontornado",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authhackathontornadob8399ae6b8399ae6",
+      "Outputs.UserPoolId"
+    ]
+  }
+}

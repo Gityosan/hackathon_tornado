@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-hackathontornado-dev-70318-authRole",
+      "UnauthRoleArn": "arn:aws:iam::188793283468:role/amplify-hackathontornado-dev-70318-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::188793283468:role/amplify-hackathontornado-dev-70318-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-hackathontornado-dev-70318-deployment",
+      "UnauthRoleName": "amplify-hackathontornado-dev-70318-unauthRole",
+      "StackName": "amplify-hackathontornado-dev-70318",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:188793283468:stack/amplify-hackathontornado-dev-70318/9c57e8a0-fe14-11eb-8d19-0a4b476d80f3",
+      "AmplifyAppId": "d3r6eijo26grxc"
+    },
+    "categories": {
+      "auth": {
+        "hackathontornadob8399ae6b8399ae6": {}
+      }
+    }
+  }
+}
